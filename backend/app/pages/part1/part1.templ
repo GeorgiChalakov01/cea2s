@@ -1,0 +1,527 @@
+package part1
+
+import (
+	"github.com/GeorgiChalakov01/cea2s/templates"
+)
+
+templ Part1() {
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Part 1 Practice | CAE2S</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		:root {
+			--dark-bg: #121212;
+			--dark-card: #1e1e1e;
+			--dark-purple: #4a1c7f;
+			--medium-purple: #6a3da0;
+			--light-purple: #8c5fc9;
+			--accent-color: #b388ff;
+			--text-primary: #f5f5f5;
+			--text-secondary: #e0e0e0;
+		}
+		
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+			color: var(--text-primary);
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			min-height: 100vh;
+			overflow-x: hidden;
+			background-attachment: fixed;
+			line-height: 1.6;
+		}
+		
+		/* Navigation */
+		.navbar {
+			background: rgba(26, 26, 46, 0.95);
+			backdrop-filter: blur(10px);
+			padding: 1rem 2rem;
+			border-bottom: 1px solid rgba(106, 61, 160, 0.3);
+		}
+		
+		.navbar-brand {
+			font-weight: 700;
+			color: var(--accent-color) !important;
+			font-size: 1.5rem;
+			display: flex;
+			align-items: center;
+		}
+		
+		.navbar-brand i {
+			margin-right: 10px;
+			font-size: 1.8rem;
+		}
+		
+		.logo-highlight {
+			color: #fff;
+			background: linear-gradient(90deg, var(--light-purple), var(--accent-color));
+			padding: 0 5px;
+			border-radius: 4px;
+			margin-left: 3px;
+		}
+		
+		/* Mobile specific styles */
+		@media (max-width: 768px) {
+			.footer {
+				display: none;
+			}
+			body {
+				overflow: hidden;
+				height: 100vh;
+			}
+			.practice-container {
+				height: calc(100vh - 70px);
+				margin: 0 auto;
+				border-radius: 0;
+				padding: 1.5rem;
+			}
+		}
+		
+		.practice-container {
+			max-width: 800px;
+			margin: 2rem auto;
+			padding: 2rem;
+			background: var(--dark-card);
+			border-radius: 15px;
+			border: 1px solid rgba(106, 61, 160, 0.3);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+			position: relative;
+			overflow: hidden;
+		}
+		
+		.practice-container::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 5px;
+			height: 100%;
+			background: linear-gradient(to bottom, var(--dark-purple), var(--light-purple));
+		}
+		
+		.question-counter {
+			text-align: center;
+			margin-bottom: 2rem;
+			color: var(--accent-color);
+			font-size: 1.2rem;
+		}
+		
+		.status-indicator {
+			text-align: center;
+			margin: 2rem 0;
+			font-size: 1.5rem;
+			min-height: 60px;
+		}
+		
+		.audio-container {
+			display: flex;
+			justify-content: center;
+			margin: 2rem 0;
+		}
+		
+		.audio-icon {
+			font-size: 4rem;
+			color: var(--accent-color);
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+		
+		.audio-icon.playing {
+			animation: pulse 1.5s infinite;
+		}
+		
+		.recording-container {
+			text-align: center;
+			margin: 2rem 0;
+			display: none;
+		}
+		
+		.recording-indicator {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 1.5rem;
+		}
+		
+		.recording-dot {
+			width: 12px;
+			height: 12px;
+			background-color: #ff4d4d;
+			border-radius: 50%;
+			margin: 0 5px;
+			animation: bounce 1.5s infinite;
+		}
+		
+		.recording-dot:nth-child(2) {
+			animation-delay: 0.2s;
+		}
+		
+		.recording-dot:nth-child(3) {
+			animation-delay: 0.4s;
+		}
+		
+		.stop-button {
+			background: linear-gradient(135deg, #ff4d4d 0%, #ff1a1a 100%);
+			color: white;
+			border: none;
+			padding: 1rem 2rem;
+			border-radius: 50px;
+			font-size: 1.2rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			display: inline-flex;
+			align-items: center;
+		}
+		
+		.stop-button:hover {
+			transform: scale(1.05);
+			box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+		}
+		
+		.stop-button i {
+			margin-right: 10px;
+		}
+		
+		.progress-container {
+			margin-top: 2rem;
+		}
+		
+		.progress-bar {
+			height: 8px;
+			background: rgba(106, 61, 160, 0.3);
+			border-radius: 4px;
+			overflow: hidden;
+		}
+		
+		.progress-fill {
+			height: 100%;
+			background: linear-gradient(90deg, var(--medium-purple), var(--light-purple));
+			width: 0%;
+			transition: width 0.5s ease;
+		}
+		
+		@keyframes pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.1); }
+			100% { transform: scale(1); }
+		}
+		
+		@keyframes bounce {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-10px); }
+		}
+		
+		.completed-message {
+			text-align: center;
+			padding: 2rem;
+			display: none;
+		}
+		
+		.completed-icon {
+			font-size: 4rem;
+			color: #4CAF50;
+			margin-bottom: 1rem;
+			animation: floating 3s ease-in-out infinite;
+		}
+		
+		@keyframes floating {
+			0% { transform: translateY(0px); }
+			50% { transform: translateY(-15px); }
+			100% { transform: translateY(0px); }
+		}
+		
+		/* Footer */
+		.footer {
+			background: rgba(30, 30, 46, 0.95);
+			padding: 3rem 0 2rem;
+			border-top: 1px solid rgba(106, 61, 160, 0.3);
+		}
+		
+		.footer-title {
+			font-size: 1.8rem;
+			margin-bottom: 1.5rem;
+			color: var(--accent-color);
+		}
+		
+		.company-info {
+			font-size: 0.9rem;
+			color: var(--text-secondary);
+			margin-top: 1.5rem;
+			text-align: center;
+		}
+
+		/* Add styles for the start button */
+		.start-container {
+			text-align: center;
+			padding: 3rem 0;
+		}
+		.start-button {
+			background: linear-gradient(135deg, var(--dark-purple) 0%, var(--light-purple) 100%);
+			color: white;
+			font-size: 1.5rem;
+			font-weight: 600;
+			padding: 1.2rem 2.5rem;
+			border: none;
+			border-radius: 15px;
+			box-shadow: 0 10px 25px rgba(106, 61, 160, 0.4);
+			transition: all 0.4s ease;
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+			margin: 2rem 0 3rem;
+			border: 2px solid var(--accent-color);
+			letter-spacing: 1px;
+			display: inline-block;
+			text-decoration: none;
+			cursor: pointer;
+		}
+		.start-button:hover {
+			transform: translateY(-5px) scale(1.03);
+			box-shadow: 0 15px 30px rgba(106, 61, 160, 0.6);
+		}
+	</style>
+	</head>
+	<body>
+		<!-- Navigation -->
+		@templates.Navigation()
+		<div class="container">
+			<div class="practice-container">
+				<div id="start-container" class="start-container">
+					<h3>Part 1: Interview Practice</h3>
+					<p>You'll answer 10 personal questions. Each question will be played automatically.</p>
+					<button id="start-button" class="start-button">
+						<i class="fas fa-play me-2"></i> Start Practice
+					</button>
+					<p class="text-muted">Click "Start Practice" to begin. You'll need to allow microphone access.</p>
+				</div>
+				
+				<div id="practice-content" style="display:none;">
+					<div class="question-counter">
+						Question <span id="current-question">1</span> of <span id="total-questions">10</span>
+					</div>
+					<div class="status-indicator" id="status-indicator">
+						Listen to the question...
+					</div>
+					<div class="audio-container">
+						<div class="audio-icon" id="audio-icon">
+							<i class="fas fa-headphones"></i>
+						</div>
+						<audio id="question-audio" preload="auto"></audio>
+					</div>
+					<div class="recording-container" id="recording-container">
+						<div class="recording-indicator">
+							<div class="recording-dot"></div>
+							<div class="recording-dot"></div>
+							<div class="recording-dot"></div>
+						</div>
+						<p class="mb-3">Recording your answer...</p>
+						<button class="stop-button" id="stop-button">
+							<i class="fas fa-stop"></i> Stop Recording
+						</button>
+					</div>
+					<div class="progress-container">
+						<div class="progress-bar">
+							<div class="progress-fill" id="progress-fill"></div>
+						</div>
+					</div>
+					<div class="completed-message" id="completed-message">
+						<div class="completed-icon">
+							<i class="fas fa-check-circle"></i>
+						</div>
+						<h3>All Questions Completed!</h3>
+						<p>Your answers are being submitted...</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Footer -->
+		@templates.Footer()
+		<script>
+			// Get base URL for audio files
+			const baseUrl = window.location.origin;
+			
+			// Questions
+			const questions = [
+				{ id: 1, question: "Tell me about your hometown." },
+				{ id: 2, question: "What do you enjoy doing in your free time?" },
+				{ id: 3, question: "How important is technology in your life?" },
+				{ id: 4, question: "What kind of music do you like?" },
+				{ id: 5, question: "Describe your ideal holiday destination." },
+				{ id: 6, question: "What are your career aspirations?" },
+				{ id: 7, question: "How do you usually spend your weekends?" },
+				{ id: 8, question: "Do you prefer reading books or watching movies? Why?" },
+				{ id: 9, question: "What is your favorite season and why?" },
+				{ id: 10, question: "How do you think education will change in the future?" }
+			];
+
+			let currentQuestion = 0;
+			let mediaRecorder;
+			let audioChunks = [];
+
+			// DOM Elements
+			const startContainer = document.getElementById('start-container');
+			const startButton = document.getElementById('start-button');
+			const practiceContent = document.getElementById('practice-content');
+			const audioIcon = document.getElementById('audio-icon');
+			const audioElement = document.getElementById('question-audio');
+			const statusIndicator = document.getElementById('status-indicator');
+			const recordingContainer = document.getElementById('recording-container');
+			const stopButton = document.getElementById('stop-button');
+			const currentQuestionEl = document.getElementById('current-question');
+			const totalQuestionsEl = document.getElementById('total-questions');
+			const progressFill = document.getElementById('progress-fill');
+			const completedMessage = document.getElementById('completed-message');
+
+			// Initialize
+			function init() {
+				totalQuestionsEl.textContent = questions.length;
+				
+				// Set up event listeners
+				startButton.addEventListener('click', startPractice);
+				audioElement.addEventListener('ended', startRecording);
+				stopButton.addEventListener('click', stopRecording);
+			}
+
+			// Start practice
+			function startPractice() {
+				// Hide start button and show practice content
+				startContainer.style.display = 'none';
+				practiceContent.style.display = 'block';
+				
+				// Load the first question
+				loadQuestion(currentQuestion);
+			}
+
+			// Load question
+			function loadQuestion(index) {
+				if (index >= questions.length) {
+					// All questions completed
+					recordingContainer.style.display = 'none';
+					completedMessage.style.display = 'block';
+					
+					// Submit recordings to server (simulated)
+					setTimeout(() => {
+						alert("All recordings submitted successfully!");
+						// In real app: window.location.href = "/results";
+					}, 3000);
+					return;
+				}
+				
+				currentQuestionEl.textContent = index + 1;
+				progressFill.style.width = `${((index) / questions.length) * 100}%`;
+				
+				const question = questions[index];
+				const audioUrl = `${baseUrl}/audio/${question.id}.mp3`;
+				audioElement.src = audioUrl;
+				statusIndicator.textContent = "Listen to the question...";
+				audioIcon.innerHTML = '<i class="fas fa-headphones"></i>';
+				audioIcon.classList.remove('playing');
+				recordingContainer.style.display = 'none';
+				
+				// Preload the audio
+				audioElement.load();
+				
+				// Play after a short delay
+				setTimeout(() => {
+					audioIcon.classList.add('playing');
+					audioElement.play().catch(error => {
+						console.error("Error playing audio:", error);
+						// If playback fails, move to recording after a delay
+						setTimeout(startRecording, 1000);
+					});
+				}, 1000);
+			}
+
+			// Start recording
+			function startRecording() {
+				statusIndicator.textContent = "Your turn to speak...";
+				audioIcon.classList.remove('playing');
+				audioIcon.innerHTML = '<i class="fas fa-microphone"></i>';
+				
+				// Show recording UI after a short delay
+				setTimeout(() => {
+					recordingContainer.style.display = 'block';
+				}, 500);
+				
+				// Start actual recording
+				if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+					navigator.mediaDevices.getUserMedia({ audio: true })
+						.then(stream => {
+							mediaRecorder = new MediaRecorder(stream);
+							audioChunks = [];
+							
+							mediaRecorder.ondataavailable = event => {
+								audioChunks.push(event.data);
+							};
+							
+							mediaRecorder.onstop = () => {
+								const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+								saveRecording(audioBlob);
+								stream.getTracks().forEach(track => track.stop());
+							};
+							
+							mediaRecorder.start();
+						})
+						.catch(error => {
+							console.error("Error accessing microphone:", error);
+							alert("Could not access microphone. Please ensure you've granted permission.");
+							// Simulate recording for demo
+							setTimeout(() => {
+								nextQuestion();
+							}, 3000);
+						});
+				} else {
+					console.warn("getUserMedia not supported");
+					// Simulate recording for demo
+					setTimeout(() => {
+						nextQuestion();
+					}, 3000);
+				}
+			}
+
+			// Stop recording
+			function stopRecording() {
+				if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+					mediaRecorder.stop();
+				} else {
+					// If there was an error starting recording, just move to next question
+					nextQuestion();
+				}
+			}
+
+			// Save recording (simulated)
+			function saveRecording(blob) {
+				// In a real app, you would send this to your server
+				// along with the question ID
+				console.log(`Saved recording for question ${questions[currentQuestion].id}`);
+				
+				// Create a mock delay to simulate saving
+				setTimeout(() => {
+					nextQuestion();
+				}, 500);
+			}
+
+			// Move to next question
+			function nextQuestion() {
+				currentQuestion++;
+				loadQuestion(currentQuestion);
+			}
+
+			// Initialize when page loads
+			document.addEventListener('DOMContentLoaded', init);
+		</script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	</body>
+	</html>
+}

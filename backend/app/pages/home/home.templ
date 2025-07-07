@@ -1,0 +1,612 @@
+package home
+
+import (
+	"github.com/GeorgiChalakov01/cea2s/templates"
+)
+
+
+templ Home() {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Practice for the Cambridge Advanced English CAE2 C1 exam with comprehensive speaking exercises">
+	<meta name="keywords" content="CAE, C1 Advanced, Cambridge English, speaking practice, exam preparation">
+	<title>CAE2S | Cambridge Advanced English Speaking Practice</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+	<style>
+		:root {
+			--dark-bg: #121212;
+			--dark-card: #1e1e1e;
+			--dark-purple: #4a1c7f;
+			--medium-purple: #6a3da0;
+			--light-purple: #8c5fc9;
+			--accent-color: #b388ff;
+			--text-primary: #f5f5f5;
+			--text-secondary: #e0e0e0;
+		}
+		
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+			color: var(--text-primary);
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			min-height: 100vh;
+			overflow-x: hidden;
+			background-attachment: fixed;
+			line-height: 1.6;
+		}
+		
+		/* Navigation */
+		.navbar {
+			background: rgba(26, 26, 46, 0.95);
+			backdrop-filter: blur(10px);
+			padding: 1rem 2rem;
+			border-bottom: 1px solid rgba(106, 61, 160, 0.3);
+		}
+		
+		.navbar-brand {
+			font-weight: 700;
+			color: var(--accent-color) !important;
+			font-size: 1.5rem;
+			display: flex;
+			align-items: center;
+		}
+		
+		.navbar-brand i {
+			margin-right: 10px;
+			font-size: 1.8rem;
+		}
+		
+		.logo-highlight {
+			color: #fff;
+			background: linear-gradient(90deg, var(--light-purple), var(--accent-color));
+			padding: 0 5px;
+			border-radius: 4px;
+			margin-left: 3px;
+		}
+		
+		/* Hero Section */
+		.hero-section {
+			padding: 6rem 0 2rem;
+			position: relative;
+			overflow: hidden;
+			text-align: center;
+		}
+		
+		.hero-content {
+			position: relative;
+			z-index: 2;
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 0 1rem;
+		}
+		
+		.main-title {
+			font-size: clamp(2.5rem, 5vw, 3.5rem);
+			font-weight: 800;
+			margin-bottom: 1.5rem;
+			text-shadow: 0 0 15px rgba(179, 136, 255, 0.3);
+			position: relative;
+			line-height: 1.2;
+			background: linear-gradient(90deg, var(--accent-color), #fff);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+		
+		.subtitle {
+			font-size: clamp(1.2rem, 2vw, 1.4rem);
+			margin-bottom: 2.5rem;
+			opacity: 0.9;
+			color: var(--text-secondary);
+		}
+		
+		.full-practice-btn {
+			background: linear-gradient(135deg, var(--dark-purple) 0%, var(--light-purple) 100%);
+			color: white;
+			font-size: clamp(1.2rem, 2vw, 1.5rem);
+			font-weight: 600;
+			padding: 1.2rem 2.5rem;
+			border: none;
+			border-radius: 15px;
+			box-shadow: 0 10px 25px rgba(106, 61, 160, 0.4);
+			transition: all 0.4s ease;
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+			margin: 2rem 0 3rem;
+			border: 2px solid var(--accent-color);
+			letter-spacing: 1px;
+			display: inline-block;
+			text-decoration: none;
+		}
+		
+		.full-practice-btn:hover {
+			transform: translateY(-5px) scale(1.03);
+			box-shadow: 0 15px 30px rgba(106, 61, 160, 0.6);
+			color: white;
+		}
+		
+		/* Practice Parts Section */
+		.practice-section {
+			padding: 2rem 0;
+			position: relative;
+			z-index: 2;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+		
+		.section-title {
+			font-size: clamp(1.8rem, 3vw, 2.2rem);
+			font-weight: 700;
+			margin: 0 0 2rem;
+			text-align: center;
+			position: relative;
+			color: var(--accent-color);
+		}
+		
+		.section-title::after {
+			content: "";
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 80px;
+			height: 3px;
+			background: var(--accent-color);
+			border-radius: 2px;
+		}
+		
+		.section-description {
+			text-align: center;
+			max-width: 800px;
+			margin: 0 auto 3rem;
+			color: var(--text-secondary);
+			padding: 0 1rem;
+		}
+		
+		.part-card {
+			background: var(--dark-card);
+			border-radius: 15px;
+			padding: 2rem;
+			height: 100%;
+			transition: all 0.4s ease;
+			border: 1px solid rgba(106, 61, 160, 0.3);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+			position: relative;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 2rem;
+		}
+		
+		.part-card::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 5px;
+			height: 100%;
+			background: linear-gradient(to bottom, var(--dark-purple), var(--light-purple));
+		}
+		
+		.part-card:hover {
+			transform: translateY(-10px);
+			box-shadow: 0 15px 30px rgba(74, 28, 127, 0.3);
+			border-color: var(--medium-purple);
+		}
+		
+		.part-header {
+			display: flex;
+			align-items: center;
+			margin-bottom: 1.5rem;
+		}
+		
+		.part-number {
+			font-size: 2.5rem;
+			font-weight: 800;
+			color: var(--accent-color);
+			margin-right: 15px;
+			min-width: 50px;
+		}
+		
+		.part-title {
+			font-size: 1.6rem;
+			font-weight: 700;
+			color: var(--accent-color);
+		}
+		
+		.part-content {
+			margin-bottom: 1.5rem;
+			flex-grow: 1;
+		}
+		
+		.part-content h5 {
+			color: var(--accent-color);
+			margin-top: 1.2rem;
+			font-size: 1.2rem;
+		}
+		
+		.part-content p {
+			margin-bottom: 0.5rem;
+			line-height: 1.6;
+			color: var(--text-secondary);
+		}
+		
+		.skills-list {
+			list-style-type: none;
+			padding-left: 0;
+			margin-top: 1rem;
+		}
+		
+		.skills-list li {
+			position: relative;
+			padding-left: 1.5rem;
+			margin-bottom: 0.5rem;
+		}
+		
+		.skills-list li:before {
+			content: "•";
+			color: var(--accent-color);
+			position: absolute;
+			left: 0;
+			font-size: 1.5rem;
+			line-height: 1;
+		}
+		
+		.time-badge {
+			background: rgba(106, 61, 160, 0.3);
+			color: var(--accent-color);
+			padding: 0.5rem 1rem;
+			border-radius: 20px;
+			font-weight: 600;
+			display: inline-flex;
+			align-items: center;
+			margin-top: 1rem;
+			font-size: 0.9rem;
+		}
+		
+		.practice-btn {
+			background: linear-gradient(135deg, var(--medium-purple) 0%, var(--light-purple) 100%);
+			color: white;
+			border: none;
+			padding: 0.8rem 1.5rem;
+			border-radius: 8px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			display: block;
+			width: 100%;
+			position: relative;
+			overflow: hidden;
+			font-size: 1rem;
+			text-align: center;
+			text-decoration: none;
+		}
+		
+		.practice-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 5px 15px rgba(106, 61, 160, 0.4);
+			color: white;
+		}
+		
+		/* Features Section */
+		.features-section {
+			background: rgba(30, 30, 46, 0.7);
+			padding: 4rem 0;
+			margin-top: 4rem;
+			border-top: 1px solid rgba(106, 61, 160, 0.3);
+			border-bottom: 1px solid rgba(106, 61, 160, 0.3);
+		}
+		
+		.feature-card {
+			background: rgba(26, 26, 46, 0.7);
+			border-radius: 15px;
+			padding: 2rem;
+			text-align: center;
+			height: 100%;
+			border: 1px solid rgba(106, 61, 160, 0.3);
+			transition: all 0.3s ease;
+		}
+		
+		.feature-card:hover {
+			transform: translateY(-10px);
+			box-shadow: 0 15px 30px rgba(74, 28, 127, 0.3);
+			border-color: var(--medium-purple);
+		}
+		
+		.feature-icon {
+			font-size: 3rem;
+			color: var(--accent-color);
+			margin-bottom: 1.5rem;
+		}
+		
+		/* Footer */
+		.footer {
+			background: rgba(30, 30, 46, 0.95);
+			padding: 3rem 0 2rem;
+			border-top: 1px solid rgba(106, 61, 160, 0.3);
+		}
+		
+		.footer-title {
+			font-size: 1.8rem;
+			margin-bottom: 1.5rem;
+			color: var(--accent-color);
+		}
+		
+		.company-info {
+			font-size: 0.9rem;
+			color: var(--text-secondary);
+			margin-top: 1.5rem;
+			text-align: center;
+		}
+		
+		/* Animations */
+		.floating {
+			animation: floating 6s ease-in-out infinite;
+		}
+		
+		@keyframes floating {
+			0% { transform: translateY(0px); }
+			50% { transform: translateY(-15px); }
+			100% { transform: translateY(0px); }
+		}
+		
+		.pulse {
+			animation: pulse 2s infinite;
+		}
+		
+		@keyframes pulse {
+			0% { box-shadow: 0 0 0 0 rgba(179, 136, 255, 0.7); }
+			70% { box-shadow: 0 0 0 15px rgba(179, 136, 255, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(179, 136, 255, 0); }
+		}
+		
+		.glow {
+			text-shadow: 0 0 10px rgba(179, 136, 255, 0.7);
+		}
+		
+		/* Responsive Adjustments */
+		@media (max-width: 768px) {
+			.navbar-brand {
+				font-size: 1.2rem;
+			}
+			
+			.hero-section {
+				padding: 4rem 0 1rem;
+			}
+			
+			.feature-card {
+				margin-bottom: 1.5rem;
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<!-- Navigation -->
+	@templates.Navigation()
+	
+	<!-- Hero Section -->
+	<section class="hero-section">
+		<div class="container">
+			<div class="hero-content animate__animated animate__fadeInDown">
+				<div class="mb-4">
+					<span class="badge bg-purple p-2 px-3" style="background: var(--medium-purple); font-size: 1.1rem;">
+						Cambridge Advanced English Exam (C1)
+					</span>
+				</div>
+				<h1 class="main-title">Master the CAE Speaking Exam</h1>
+				<p class="subtitle">CAE2S provides targeted speaking exercises to help you excel in all parts of the Cambridge Advanced English exam</p>
+				
+				<a href="/full-practice" class="full-practice-btn pulse">
+					<i class="fas fa-microphone me-2"></i>Full Speaking Practice
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- Practice Parts Section -->
+	<section class="practice-section">
+		<div class="container">
+			<h2 class="section-title animate__animated animate__fadeIn">Practice Exam Components</h2>
+			<p class="section-description animate__animated animate__fadeIn">Focus on specific parts of the speaking exam with targeted exercises</p>
+			
+			<div class="row g-4">
+				<!-- Part 1 -->
+				<div class="col-lg-6">
+					<div class="part-card animate__animated animate__fadeInLeft">
+						<div class="part-header">
+							<div class="part-number">1</div>
+							<div class="part-title">Interview</div>
+						</div>
+						<div class="part-content">
+							<h5>What's in Part 1?</h5>
+							<p>Conversation between the candidates and the interlocutor. The examiner asks questions and you may have to give information about your interests, studies, careers, etc.</p>
+							
+							<h5>This exercise helps you develop:</h5>
+							<ul class="skills-list">
+								<li>Giving personal information</li>
+								<li>Expressing opinions on familiar topics</li>
+								<li>Speaking fluently about yourself</li>
+								<li>Building confidence in initial interactions</li>
+							</ul>
+							
+							<div class="time-badge">
+								<i class="fas fa-clock me-2"></i>2 minutes
+							</div>
+						</div>
+						<a href="/part1" class="practice-btn">Practice Part 1</a>
+					</div>
+				</div>
+				
+				<!-- Part 2 -->
+				<div class="col-lg-6">
+					<div class="part-card animate__animated animate__fadeInRight">
+						<div class="part-header">
+							<div class="part-number">2</div>
+							<div class="part-title">Long Turn</div>
+						</div>
+						<div class="part-content">
+							<h5>What's in Part 2?</h5>
+							<p>The interlocutor gives you three pictures and asks you to talk about two of them. You have to speak for 1 minute without interruption.</p>
+							
+							<h5>This exercise helps you develop:</h5>
+							<ul class="skills-list">
+								<li>Extended individual speaking</li>
+								<li>Comparing and contrasting</li>
+								<li>Describing visuals</li>
+								<li>Expressing opinions and speculating</li>
+							</ul>
+							
+							<div class="time-badge">
+								<i class="fas fa-clock me-2"></i>1 minute per candidate + 30-second response
+							</div>
+						</div>
+						<a href="/part2" class="practice-btn">Practice Part 2</a>
+					</div>
+				</div>
+				
+				<!-- Part 3 -->
+				<div class="col-lg-6">
+					<div class="part-card animate__animated animate__fadeInLeft">
+						<div class="part-header">
+							<div class="part-number">3</div>
+							<div class="part-title">Collaborative Task</div>
+						</div>
+						<div class="part-content">
+							<h5>What's in Part 3?</h5>
+							<p>Conversation with the other candidate. The examiner gives you spoken instructions with written prompts for discussion.</p>
+							
+							<h5>This exercise helps you develop:</h5>
+							<ul class="skills-list">
+								<li>Exchanging ideas with a partner</li>
+								<li>Justifying opinions</li>
+								<li>Agreeing and disagreeing</li>
+								<li>Negotiating and decision-making</li>
+							</ul>
+							
+							<div class="time-badge">
+								<i class="fas fa-clock me-2"></i>3 minutes (2 min discussion + 1 min decision)
+							</div>
+						</div>
+						<a href="/part3" class="practice-btn">Practice Part 3</a>
+					</div>
+				</div>
+				
+				<!-- Part 4 -->
+				<div class="col-lg-6">
+					<div class="part-card animate__animated animate__fadeInRight">
+						<div class="part-header">
+							<div class="part-number">4</div>
+							<div class="part-title">Discussion</div>
+						</div>
+						<div class="part-content">
+							<h5>What's in Part 4?</h5>
+							<p>Further discussion with the other candidate based on the topics raised in Part 3.</p>
+							
+							<h5>This exercise helps you develop:</h5>
+							<ul class="skills-list">
+								<li>Expressing and justifying opinions</li>
+								<li>Engaging in deeper discussion</li>
+								<li>Building on partner's comments</li>
+								<li>Handling abstract topics</li>
+							</ul>
+							
+							<div class="time-badge">
+								<i class="fas fa-clock me-2"></i>5 minutes
+							</div>
+						</div>
+						<a href="/part4" class="practice-btn">Practice Part 4</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Features Section -->
+	<section class="features-section">
+		<div class="container">
+			<h2 class="section-title">Why Practice with CAE2S?</h2>
+			<p class="section-description">Our platform is designed to maximize your speaking potential</p>
+			
+			<div class="row g-4">
+				<div class="col-md-4">
+					<div class="feature-card">
+						<div class="feature-icon">
+							<i class="fas fa-brain"></i>
+						</div>
+						<h3>AI-Powered Feedback</h3>
+						<p>Get instant analysis on fluency, vocabulary, grammar, and pronunciation with our advanced AI system.</p>
+					</div>
+				</div>
+				
+				<div class="col-md-4">
+					<div class="feature-card">
+						<div class="feature-icon">
+							<i class="fas fa-chart-line"></i>
+						</div>
+						<h3>Progress Tracking</h3>
+						<p>Monitor your improvement with detailed analytics and personalized progress reports.</p>
+					</div>
+				</div>
+				
+				<div class="col-md-4">
+					<div class="feature-card">
+						<div class="feature-icon">
+							<i class="fas fa-clone"></i>
+						</div>
+						<h3>Real Exam Simulations</h3>
+						<p>Experience authentic exam conditions with our timed simulations and official exam formats.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	@templates.Footer()
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		// Add scroll animations
+		document.addEventListener('DOMContentLoaded', function() {
+			// Initialize animations when elements come into view
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('animate__fadeInUp');
+					}
+				});
+			}, {
+				threshold: 0.1
+			});
+			
+			// Observe each part card
+			document.querySelectorAll('.part-card').forEach(card => {
+				observer.observe(card);
+			});
+			
+			// Add hover effects to buttons
+			const buttons = document.querySelectorAll('.practice-btn, .full-practice-btn');
+			buttons.forEach(button => {
+				button.addEventListener('mouseenter', function() {
+					this.classList.add('glow');
+				});
+				
+				button.addEventListener('mouseleave', function() {
+					this.classList.remove('glow');
+				});
+			});
+		});
+	</script>
+</body>
+</html>
+}
