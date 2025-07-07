@@ -1,18 +1,19 @@
 package part1
 
 import (
+	"encoding/json"
 	"github.com/GeorgiChalakov01/cea2s/templates"
 )
 
-templ Part1() {
-	<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Part 1 Practice | CAE2S</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+templ Part1(audioFiles []string) {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Part 1 Practice | CAE2S</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<style>
 		:root {
 			--dark-bg: #121212;
@@ -291,237 +292,231 @@ templ Part1() {
 			box-shadow: 0 15px 30px rgba(106, 61, 160, 0.6);
 		}
 	</style>
-	</head>
-	<body>
-		<!-- Navigation -->
-		@templates.Navigation()
-		<div class="container">
-			<div class="practice-container">
-				<div id="start-container" class="start-container">
-					<h3>Part 1: Interview Practice</h3>
-					<p>You'll answer 10 personal questions. Each question will be played automatically.</p>
-					<button id="start-button" class="start-button">
-						<i class="fas fa-play me-2"></i> Start Practice
-					</button>
-					<p class="text-muted">Click "Start Practice" to begin. You'll need to allow microphone access.</p>
+</head>
+<body>
+	<!-- Navigation -->
+	@templates.Navigation()
+	<div class="container">
+		<div class="practice-container">
+			<div id="start-container" class="start-container">
+				<h3>Part 1: Interview Practice</h3>
+				<p>You'll answer { len(audioFiles) } personal questions. Each question will be played automatically.</p>
+				<button id="start-button" class="start-button">
+					<i class="fas fa-play me-2"></i> Start Practice
+				</button>
+				<p class="text-muted">Click "Start Practice" to begin. You'll need to allow microphone access.</p>
+			</div>
+			<div id="practice-content" style="display:none;">
+				<div class="question-counter">
+					Question <span id="current-question">1</span> of <span id="total-questions">{ len(audioFiles) }</span>
 				</div>
-				
-				<div id="practice-content" style="display:none;">
-					<div class="question-counter">
-						Question <span id="current-question">1</span> of <span id="total-questions">10</span>
+				<div class="status-indicator" id="status-indicator">
+					Listen to the question...
+				</div>
+				<div class="audio-container">
+					<div class="audio-icon" id="audio-icon">
+						<i class="fas fa-headphones"></i>
 					</div>
-					<div class="status-indicator" id="status-indicator">
-						Listen to the question...
+					<audio id="question-audio" preload="auto"></audio>
+				</div>
+				<div class="recording-container" id="recording-container">
+					<div class="recording-indicator">
+						<div class="recording-dot"></div>
+						<div class="recording-dot"></div>
+						<div class="recording-dot"></div>
 					</div>
-					<div class="audio-container">
-						<div class="audio-icon" id="audio-icon">
-							<i class="fas fa-headphones"></i>
-						</div>
-						<audio id="question-audio" preload="auto"></audio>
+					<p class="mb-3">Recording your answer...</p>
+					<button class="stop-button" id="stop-button">
+						<i class="fas fa-stop"></i> Stop Recording
+					</button>
+				</div>
+				<div class="progress-container">
+					<div class="progress-bar">
+						<div class="progress-fill" id="progress-fill"></div>
 					</div>
-					<div class="recording-container" id="recording-container">
-						<div class="recording-indicator">
-							<div class="recording-dot"></div>
-							<div class="recording-dot"></div>
-							<div class="recording-dot"></div>
-						</div>
-						<p class="mb-3">Recording your answer...</p>
-						<button class="stop-button" id="stop-button">
-							<i class="fas fa-stop"></i> Stop Recording
-						</button>
+				</div>
+				<div class="completed-message" id="completed-message">
+					<div class="completed-icon">
+						<i class="fas fa-check-circle"></i>
 					</div>
-					<div class="progress-container">
-						<div class="progress-bar">
-							<div class="progress-fill" id="progress-fill"></div>
-						</div>
-					</div>
-					<div class="completed-message" id="completed-message">
-						<div class="completed-icon">
-							<i class="fas fa-check-circle"></i>
-						</div>
-						<h3>All Questions Completed!</h3>
-						<p>Your answers are being submitted...</p>
-					</div>
+					<h3>All Questions Completed!</h3>
+					<p>Your answers are being submitted...</p>
 				</div>
 			</div>
 		</div>
-		<!-- Footer -->
-		@templates.Footer()
-		<script>
-			// Get base URL for audio files
-			const baseUrl = window.location.origin;
+	</div>
+	<!-- Footer -->
+	@templates.Footer()
+	<script>
+		// Get base URL for audio files
+		const baseUrl = window.location.origin;
+		
+		// Audio files from Minio
+		const audioFiles = JSON.parse('{{ toJSON(audioFiles) }}');
+		
+		let currentQuestion = 0;
+		let mediaRecorder;
+		let audioChunks = [];
+		
+		// DOM Elements
+		const startContainer = document.getElementById('start-container');
+		const startButton = document.getElementById('start-button');
+		const practiceContent = document.getElementById('practice-content');
+		const audioIcon = document.getElementById('audio-icon');
+		const audioElement = document.getElementById('question-audio');
+		const statusIndicator = document.getElementById('status-indicator');
+		const recordingContainer = document.getElementById('recording-container');
+		const stopButton = document.getElementById('stop-button');
+		const currentQuestionEl = document.getElementById('current-question');
+		const totalQuestionsEl = document.getElementById('total-questions');
+		const progressFill = document.getElementById('progress-fill');
+		const completedMessage = document.getElementById('completed-message');
+		
+		// Initialize
+		function init() {
+			totalQuestionsEl.textContent = audioFiles.length;
 			
-			// Questions
-			const questions = [
-				{ id: 1, question: "Tell me about your hometown." },
-				{ id: 2, question: "What do you enjoy doing in your free time?" },
-				{ id: 3, question: "How important is technology in your life?" },
-				{ id: 4, question: "What kind of music do you like?" },
-				{ id: 5, question: "Describe your ideal holiday destination." },
-				{ id: 6, question: "What are your career aspirations?" },
-				{ id: 7, question: "How do you usually spend your weekends?" },
-				{ id: 8, question: "Do you prefer reading books or watching movies? Why?" },
-				{ id: 9, question: "What is your favorite season and why?" },
-				{ id: 10, question: "How do you think education will change in the future?" }
-			];
-
-			let currentQuestion = 0;
-			let mediaRecorder;
-			let audioChunks = [];
-
-			// DOM Elements
-			const startContainer = document.getElementById('start-container');
-			const startButton = document.getElementById('start-button');
-			const practiceContent = document.getElementById('practice-content');
-			const audioIcon = document.getElementById('audio-icon');
-			const audioElement = document.getElementById('question-audio');
-			const statusIndicator = document.getElementById('status-indicator');
-			const recordingContainer = document.getElementById('recording-container');
-			const stopButton = document.getElementById('stop-button');
-			const currentQuestionEl = document.getElementById('current-question');
-			const totalQuestionsEl = document.getElementById('total-questions');
-			const progressFill = document.getElementById('progress-fill');
-			const completedMessage = document.getElementById('completed-message');
-
-			// Initialize
-			function init() {
-				totalQuestionsEl.textContent = questions.length;
-				
-				// Set up event listeners
-				startButton.addEventListener('click', startPractice);
-				audioElement.addEventListener('ended', startRecording);
-				stopButton.addEventListener('click', stopRecording);
-			}
-
-			// Start practice
-			function startPractice() {
-				// Hide start button and show practice content
-				startContainer.style.display = 'none';
-				practiceContent.style.display = 'block';
-				
-				// Load the first question
-				loadQuestion(currentQuestion);
-			}
-
-			// Load question
-			function loadQuestion(index) {
-				if (index >= questions.length) {
-					// All questions completed
-					recordingContainer.style.display = 'none';
-					completedMessage.style.display = 'block';
-					
-					// Submit recordings to server (simulated)
-					setTimeout(() => {
-						alert("All recordings submitted successfully!");
-						// In real app: window.location.href = "/results";
-					}, 3000);
-					return;
-				}
-				
-				currentQuestionEl.textContent = index + 1;
-				progressFill.style.width = `${((index) / questions.length) * 100}%`;
-				
-				const question = questions[index];
-				const audioUrl = `${baseUrl}/audio/${question.id}.mp3`;
-				audioElement.src = audioUrl;
-				statusIndicator.textContent = "Listen to the question...";
-				audioIcon.innerHTML = '<i class="fas fa-headphones"></i>';
-				audioIcon.classList.remove('playing');
+			// Set up event listeners
+			startButton.addEventListener('click', startPractice);
+			audioElement.addEventListener('ended', startRecording);
+			stopButton.addEventListener('click', stopRecording);
+		}
+		
+		// Start practice
+		function startPractice() {
+			// Hide start button and show practice content
+			startContainer.style.display = 'none';
+			practiceContent.style.display = 'block';
+			
+			// Load the first question
+			loadQuestion(currentQuestion);
+		}
+		
+		// Load question
+		function loadQuestion(index) {
+			if (index >= audioFiles.length) {
+				// All questions completed
 				recordingContainer.style.display = 'none';
+				completedMessage.style.display = 'block';
 				
-				// Preload the audio
-				audioElement.load();
-				
-				// Play after a short delay
+				// Submit recordings to server (simulated)
 				setTimeout(() => {
-					audioIcon.classList.add('playing');
-					audioElement.play().catch(error => {
-						console.error("Error playing audio:", error);
-						// If playback fails, move to recording after a delay
-						setTimeout(startRecording, 1000);
+					alert("All recordings submitted successfully!");
+					// In real app: window.location.href = "/results";
+				}, 3000);
+				return;
+			}
+			
+			currentQuestionEl.textContent = index + 1;
+			progressFill.style.width = `${((index) / audioFiles.length) * 100}%`;
+			
+			const audioFile = audioFiles[index];
+			const audioUrl = `${baseUrl}/audio/${audioFile}`;
+			audioElement.src = audioUrl;
+			statusIndicator.textContent = "Listen to the question...";
+			audioIcon.innerHTML = '<i class="fas fa-headphones"></i>';
+			audioIcon.classList.remove('playing');
+			recordingContainer.style.display = 'none';
+			
+			// Preload the audio
+			audioElement.load();
+			
+			// Play after a short delay
+			setTimeout(() => {
+				audioIcon.classList.add('playing');
+				audioElement.play().catch(error => {
+					console.error("Error playing audio:", error);
+					// If playback fails, move to recording after a delay
+					setTimeout(startRecording, 1000);
+				});
+			}, 1000);
+		}
+		
+		// Start recording
+		function startRecording() {
+			statusIndicator.textContent = "Your turn to speak...";
+			audioIcon.classList.remove('playing');
+			audioIcon.innerHTML = '<i class="fas fa-microphone"></i>';
+			
+			// Show recording UI after a short delay
+			setTimeout(() => {
+				recordingContainer.style.display = 'block';
+			}, 500);
+			
+			// Start actual recording
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+				navigator.mediaDevices.getUserMedia({ audio: true })
+					.then(stream => {
+						mediaRecorder = new MediaRecorder(stream);
+						audioChunks = [];
+						
+						mediaRecorder.ondataavailable = event => {
+							audioChunks.push(event.data);
+						};
+						
+						mediaRecorder.onstop = () => {
+							const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+							saveRecording(audioBlob);
+							stream.getTracks().forEach(track => track.stop());
+						};
+						
+						mediaRecorder.start();
+					})
+					.catch(error => {
+						console.error("Error accessing microphone:", error);
+						alert("Could not access microphone. Please ensure you've granted permission.");
+						// Simulate recording for demo
+						setTimeout(() => {
+							nextQuestion();
+						}, 3000);
 					});
-				}, 1000);
-			}
-
-			// Start recording
-			function startRecording() {
-				statusIndicator.textContent = "Your turn to speak...";
-				audioIcon.classList.remove('playing');
-				audioIcon.innerHTML = '<i class="fas fa-microphone"></i>';
-				
-				// Show recording UI after a short delay
-				setTimeout(() => {
-					recordingContainer.style.display = 'block';
-				}, 500);
-				
-				// Start actual recording
-				if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-					navigator.mediaDevices.getUserMedia({ audio: true })
-						.then(stream => {
-							mediaRecorder = new MediaRecorder(stream);
-							audioChunks = [];
-							
-							mediaRecorder.ondataavailable = event => {
-								audioChunks.push(event.data);
-							};
-							
-							mediaRecorder.onstop = () => {
-								const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-								saveRecording(audioBlob);
-								stream.getTracks().forEach(track => track.stop());
-							};
-							
-							mediaRecorder.start();
-						})
-						.catch(error => {
-							console.error("Error accessing microphone:", error);
-							alert("Could not access microphone. Please ensure you've granted permission.");
-							// Simulate recording for demo
-							setTimeout(() => {
-								nextQuestion();
-							}, 3000);
-						});
-				} else {
-					console.warn("getUserMedia not supported");
-					// Simulate recording for demo
-					setTimeout(() => {
-						nextQuestion();
-					}, 3000);
-				}
-			}
-
-			// Stop recording
-			function stopRecording() {
-				if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-					mediaRecorder.stop();
-				} else {
-					// If there was an error starting recording, just move to next question
-					nextQuestion();
-				}
-			}
-
-			// Save recording (simulated)
-			function saveRecording(blob) {
-				// In a real app, you would send this to your server
-				// along with the question ID
-				console.log(`Saved recording for question ${questions[currentQuestion].id}`);
-				
-				// Create a mock delay to simulate saving
+			} else {
+				console.warn("getUserMedia not supported");
+				// Simulate recording for demo
 				setTimeout(() => {
 					nextQuestion();
-				}, 500);
+				}, 3000);
 			}
-
-			// Move to next question
-			function nextQuestion() {
-				currentQuestion++;
-				loadQuestion(currentQuestion);
+		}
+		
+		// Stop recording
+		function stopRecording() {
+			if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+				mediaRecorder.stop();
+			} else {
+				// If there was an error starting recording, just move to next question
+				nextQuestion();
 			}
+		}
+		
+		// Save recording (simulated)
+		function saveRecording(blob) {
+			// In a real app, you would send this to your server
+			// along with the question ID
+			console.log(`Saved recording for question ${audioFiles[currentQuestion]}`);
+			
+			// Create a mock delay to simulate saving
+			setTimeout(() => {
+				nextQuestion();
+			}, 500);
+		}
+		
+		// Move to next question
+		function nextQuestion() {
+			currentQuestion++;
+			loadQuestion(currentQuestion);
+		}
+		
+		// Initialize when page loads
+		document.addEventListener('DOMContentLoaded', init);
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+}
 
-			// Initialize when page loads
-			document.addEventListener('DOMContentLoaded', init);
-		</script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	</body>
-	</html>
+// Helper function to convert to JSON
+func toJSON(v any) string {
+	b, _ := json.Marshal(v)
+	return string(b)
 }

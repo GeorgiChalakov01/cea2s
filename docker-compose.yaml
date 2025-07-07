@@ -35,6 +35,9 @@ services:
     environment:
       VIRTUAL_HOST: "cea2s.gchalakov.com" 
       LETSENCRYPT_HOST: "cea2s.gchalakov.com" 
+      MINIO_ENDPOINT: "objectstorage:9000"
+      MINIO_ACCESS_KEY: "changeme"  # Same as MINIO_ROOT_USER
+      MINIO_SECRET_KEY: "changeme"  # Same as MINIO_ROOT_PASSWORD
       # DB_USER: $DB_USER 
       # DB_PORT: $DB_PORT 
       # DB_PWD: $DB_PWD 
