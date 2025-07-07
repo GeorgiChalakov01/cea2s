@@ -432,53 +432,6 @@ templ Part1(audioFiles []string) {
 			}, 1000);
 		}
 		
-		// Start recording
-		function startRecording() {
-			statusIndicator.textContent = "Your turn to speak...";
-			audioIcon.classList.remove('playing');
-			audioIcon.innerHTML = '<i class="fas fa-microphone"></i>';
-			
-			// Show recording UI after a short delay
-			setTimeout(() => {
-				recordingContainer.style.display = 'block';
-			}, 500);
-			
-			// Start actual recording
-			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-				navigator.mediaDevices.getUserMedia({ audio: true })
-					.then(stream => {
-						mediaRecorder = new MediaRecorder(stream);
-						audioChunks = [];
-						
-						mediaRecorder.ondataavailable = event => {
-							audioChunks.push(event.data);
-						};
-						
-						mediaRecorder.onstop = () => {
-							const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-							saveRecording(audioBlob);
-							stream.getTracks().forEach(track => track.stop());
-						};
-						
-						mediaRecorder.start();
-					})
-					.catch(error => {
-						console.error("Error accessing microphone:", error);
-						alert("Could not access microphone. Please ensure you've granted permission.");
-						// Simulate recording for demo
-						setTimeout(() => {
-							nextQuestion();
-						}, 3000);
-					});
-			} else {
-				console.warn("getUserMedia not supported");
-				// Simulate recording for demo
-				setTimeout(() => {
-					nextQuestion();
-				}, 3000);
-			}
-		}
-		
 		// Stop recording
 		function stopRecording() {
 			if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -489,22 +442,118 @@ templ Part1(audioFiles []string) {
 			}
 		}
 		
-		// Save recording (simulated)
-		function saveRecording(blob) {
-			// In a real app, you would send this to your server
-			// along with the question ID
-			console.log(`Saved recording for question ${audioFiles[currentQuestion]}`);
-			
-			// Create a mock delay to simulate saving
-			setTimeout(() => {
-				nextQuestion();
-			}, 500);
-		}
-		
 		// Move to next question
 		function nextQuestion() {
 			currentQuestion++;
 			loadQuestion(currentQuestion);
+		}
+
+		// Save recording (actual implementation)
+		function saveRecording(blob) {
+			const formData = new FormData();
+			formData.append('recording', blob, 'recording.mp3'); // Save as MP3
+			formData.append('questionFile', audioFiles[currentQuestion]);
+
+			fetch('/upload-response', {
+			method: 'POST',
+			body: formData
+			})
+			.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.json();
+			})
+			.then(data => {
+			if (data.status === 'accepted') {
+				console.log(`Recording accepted: ${data.objectName}`);
+				nextQuestion();
+			} else {
+				throw new Error('Server returned error status');
+			}
+			})
+			.catch(error => {
+			console.error('Error saving recording:', error);
+			alert('Error saving recording. Please try again.');
+			nextQuestion(); // Continue anyway
+			});
+		}
+
+		function startRecording() {
+			statusIndicator.textContent = "Your turn to speak...";
+			audioIcon.classList.remove('playing');
+			audioIcon.innerHTML = '<i class="fas fa-microphone"></i>';
+			
+			// Show recording UI after a short delay
+			setTimeout(() => {
+			recordingContainer.style.display = 'block';
+			}, 500);
+
+			// Use a browser-compatible format
+			const options = { 
+			audioBitsPerSecond: 128000 // 128kbps
+			};
+
+			// Try to find a supported MIME type
+			const mimeTypes = [
+			'audio/webm;codecs=opus',
+			'audio/webm',
+			'audio/ogg;codecs=opus',
+			''
+			];
+			
+			for (const mimeType of mimeTypes) {
+			try {
+				if (mimeType && MediaRecorder.isTypeSupported(mimeType)) {
+				options.mimeType = mimeType;
+				break;
+				}
+			} catch (e) {
+				console.warn(`MIME type ${mimeType} test failed`, e);
+			}
+			}
+
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+			navigator.mediaDevices.getUserMedia({ audio: true })
+			.then(stream => {
+				try {
+				mediaRecorder = new MediaRecorder(stream, options);
+				} catch (e) {
+				console.warn("Error creating MediaRecorder with options:", options, e);
+				// Fallback to default MediaRecorder
+				mediaRecorder = new MediaRecorder(stream);
+				}
+				
+				audioChunks = [];
+				
+				mediaRecorder.ondataavailable = event => {
+				audioChunks.push(event.data);
+				};
+				
+				mediaRecorder.onstop = () => {
+				const mimeType = mediaRecorder.mimeType || 'audio/webm';
+				const audioBlob = new Blob(audioChunks, { type: mimeType });
+				saveRecording(audioBlob);
+				stream.getTracks().forEach(track => track.stop());
+				};
+				
+				mediaRecorder.start();
+			})
+			.catch(error => {
+				console.error("Error accessing microphone:", error);
+				alert("Could not access microphone. Please ensure you've granted permission.");
+				// Simulate recording for demo
+				setTimeout(() => {
+				nextQuestion();
+				}, 3000);
+			});
+			} else {
+			console.warn("getUserMedia not supported");
+			// Simulate recording for demo
+			setTimeout(() => {
+				nextQuestion();
+			}, 3000);
+			}
 		}
 		
 		// Initialize when page loads
