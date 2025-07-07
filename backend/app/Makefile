@@ -1,4 +1,3 @@
-# Build binary name
 BINARY := app
 
 .PHONY: all generate build clean run

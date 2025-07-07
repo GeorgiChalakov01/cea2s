@@ -10,11 +10,6 @@ import (
 )
 
 func main() {
-	// Serve static files (audio) with correct path
-	fs := http.FileServer(http.Dir("./pages/part1/audio"))
-	http.Handle("/audio/", http.StripPrefix("/audio/", fs))
-	
-	// Routes
 	http.Handle("/", http.RedirectHandler("/home", http.StatusSeeOther))
 	http.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
 		templ.Handler(home.Home()).ServeHTTP(w, r)
