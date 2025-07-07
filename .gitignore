@@ -1,1 +1,2 @@
-pgdata
+pg_data/
+minio_data/

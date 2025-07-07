@@ -9,6 +9,8 @@ services:
     environment:
       MINIO_ROOT_USER: changeme
       MINIO_ROOT_PASSWORD: changeme
+    volumes:
+      - ./minio_data:/data/
 
   database:
     image: cae2s-postgres
@@ -21,8 +23,32 @@ services:
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: app
     volumes:
-      - ./pgdata:/var/lib/postgresql/
+      - ./pg_data:/var/lib/postgresql/
+
+  backend:
+    image: cae2s
+    networks:
+      - net
+      - network
+    ports:
+      - "8080:8080"
+    environment:
+      VIRTUAL_HOST: "cea2s.gchalakov.com" 
+      LETSENCRYPT_HOST: "cea2s.gchalakov.com" 
+      # DB_USER: $DB_USER 
+      # DB_PORT: $DB_PORT 
+      # DB_PWD: $DB_PWD 
+      # DB_SCHEMA: $DB_SCHEMA 
+      # DB_CONTAINER_NAME: $DB_CONTAINER_NAME 
+      # OLLAMA_API: $OLLAMA_API 
+      # OLLAMA_MODEL: $OLLAMA_MODEL 
+      # OLLAMA_CTX: $OLLAMA_CTX 
+      # OLLAMA_EMB_API: $OLLAMA_EMB_API 
+      # OLLAMA_EMB_MODEL: $OLLAMA_EMB_MODEL 
+      # ALLOWED_WS_ORIGIN: $ALLOWED_WS_ORIGIN 
 
 networks:
+  net:
+    external: true
   network:
     external: false
