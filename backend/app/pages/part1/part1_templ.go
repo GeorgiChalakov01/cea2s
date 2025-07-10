@@ -55,7 +55,7 @@ func Part1(audioFiles []string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " personal questions. Each question will be played automatically.</p><button id=\"start-button\" class=\"start-button\"><i class=\"fas fa-play me-2\"></i> Start Practice</button><p class=\"text-muted\">Click \"Start Practice\" to begin. You'll need to allow microphone access.</p></div><div id=\"practice-content\" style=\"display:none;\"><div class=\"question-counter\">Question <span id=\"current-question\">1</span> of <span id=\"total-questions\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " personal questions. Each question will be played automatically.</p><button id=\"start-button\" class=\"start-button\"><i class=\"fas fa-play me-2\"></i> Start Practice</button><p>Click \"Start Practice\" to begin. You'll need to allow microphone access.</p></div><div id=\"practice-content\" style=\"display:none;\"><div class=\"question-counter\">Question <span id=\"current-question\">1</span> of <span id=\"total-questions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
