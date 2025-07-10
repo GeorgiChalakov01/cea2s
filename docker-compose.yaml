@@ -2,25 +2,25 @@ services:
   objectstorage:
     image: gminio
     networks:
-      - network
+      - cae2s_net
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: changeme
-      MINIO_ROOT_PASSWORD: changeme
+      MINIO_ROOT_USER: "changeme"
+      MINIO_ROOT_PASSWORD: "changeme"
     volumes:
       - ./minio_data:/data/
 
   database:
     image: cae2s-postgres
     networks:
-      - network
+      - cae2s_net
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: changeme
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_USER: "changeme"
+      POSTGRES_PASSWORD: "changeme"
       POSTGRES_DB: app
     volumes:
       - ./pg_data:/var/lib/postgresql/
@@ -29,7 +29,7 @@ services:
     image: cae2s
     networks:
       - net
-      - network
+      - cae2s_net
     ports:
       - "8080:8080"
     environment:
@@ -50,8 +50,19 @@ services:
       # OLLAMA_EMB_MODEL: $OLLAMA_EMB_MODEL 
       # ALLOWED_WS_ORIGIN: $ALLOWED_WS_ORIGIN 
 
+  messagebroker:
+    image: rabbitmq:management-alpine
+    networks:
+      - cae2s_net
+    environment:
+      RABBITMQ_DEFAULT_USER: "changeme"
+      RABBITMQ_DEFAULT_PASS: "changeme"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 networks:
   net:
     external: true
-  network:
+  cae2s_net:
     external: false
