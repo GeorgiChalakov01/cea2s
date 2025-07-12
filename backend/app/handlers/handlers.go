@@ -49,7 +49,7 @@ func AudioHandler(minioService *minio.Service) http.HandlerFunc {
         ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
         defer cancel()
 
-        object, err := minioService.GetObject(ctx, "files", objectName)
+        object, err := minioService.GetObject(ctx, "part1-questions", objectName)
         if err != nil {
             http.Error(w, "Audio not found", http.StatusNotFound)
             return

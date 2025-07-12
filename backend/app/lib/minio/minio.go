@@ -62,7 +62,7 @@ func (s *Service) ListAudioFiles(ctx context.Context) ([]string, error) {
     defer cancel()
 
     var audioFiles []string
-    objectCh := s.client.ListObjects(ctx, "files", minio.ListObjectsOptions{
+    objectCh := s.client.ListObjects(ctx, "part1-questions", minio.ListObjectsOptions{
         Recursive: true,
         Prefix:    "question-",
     })
@@ -91,7 +91,7 @@ func ExtractQuestionID(filename string) string {
 func (s *Service) UploadRecording(ctx context.Context, objectName string, reader io.Reader, size int64) error {
     _, err := s.client.PutObject(
         ctx,
-        "files",
+        "part1-answers",
         objectName,
         reader,
         size,
