@@ -3,7 +3,6 @@ package minio
 import (
     "context"
     "io"
-    "math/rand"
     "os"
     "strings"
     "sync"
@@ -98,17 +97,4 @@ func (s *Service) UploadRecording(ctx context.Context, objectName string, reader
         minio.PutObjectOptions{ContentType: "audio/mpeg"},
     )
     return err
-}
-
-// GetRandomAudioFiles returns random subset of audio files
-func GetRandomAudioFiles(audioFiles []string, count int) []string {
-    rand.Seed(time.Now().UnixNano())
-    rand.Shuffle(len(audioFiles), func(i, j int) {
-        audioFiles[i], audioFiles[j] = audioFiles[j], audioFiles[i]
-    })
-
-    if len(audioFiles) > count {
-        return audioFiles[:count]
-    }
-    return audioFiles
 }
