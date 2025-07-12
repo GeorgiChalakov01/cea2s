@@ -12,6 +12,7 @@ import (
     "path/filepath"
     "time"
 
+    "github.com/GeorgiChalakov01/cea2s/lib/db" // Add this import
     "github.com/GeorgiChalakov01/cea2s/lib/minio"
     "github.com/GeorgiChalakov01/cea2s/pages/home"
     "github.com/GeorgiChalakov01/cea2s/pages/part1"
@@ -28,17 +29,18 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 // Part1Handler handles Part 1 practice page
 func Part1Handler(minioService *minio.Service) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
-        ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-        defer cancel()
-
-        audioFiles, err := minioService.ListAudioFiles(ctx)
+        questions, err := db.GetRandomPart1Questions(5) // Now using db package
         if err != nil {
-            http.Error(w, "Failed to load audio files", http.StatusInternalServerError)
+            http.Error(w, "Failed to load questions", http.StatusInternalServerError)
             return
         }
 
-        randomAudioFiles := minio.GetRandomAudioFiles(audioFiles, 5)
-        templ.Handler(part1.Part1(randomAudioFiles)).ServeHTTP(w, r)
+        var audioFiles []string
+        for _, q := range questions {
+            audioFiles = append(audioFiles, q.AudioFile)
+        }
+
+        templ.Handler(part1.Part1(audioFiles)).ServeHTTP(w, r)
     }
 }
 

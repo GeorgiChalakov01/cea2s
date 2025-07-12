@@ -1,4 +1,4 @@
-.PHONY: clear backend objectstorage database all down up restart
+.PHONY: clear backend objectstorage database migrate all down up restart
 
 clear:
 	@clear
@@ -21,6 +21,11 @@ database:
 	@cd db/ && ./build.sh
 	@echo "Updating database container..."
 	@docker compose up -d --no-deps --force-recreate database
+
+# Migration command - run this once after setting up the database
+migrate:
+	@echo "Running database migrations..."
+	@docker compose exec database psql -U $$(grep POSTGRES_USER .env | cut -d '=' -f2) -d $$(grep POSTGRES_DB .env | cut -d '=' -f2) -f /docker-entrypoint-initdb.d/1-createTables.sql
 
 all: backend database objectstorage
 
